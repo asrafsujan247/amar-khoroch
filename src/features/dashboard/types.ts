@@ -42,6 +42,8 @@ export type DashboardData = {
   monthLabel: string;
 
   salary: number;
+  /** Whether a salary has been set for the current month. */
+  isSalarySet: boolean;
   monthlyExpense: number;
   todayExpense: number;
   /** Salary minus monthly expense (can be negative if overspent). */

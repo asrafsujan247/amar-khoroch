@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { format, getDate } from 'date-fns';
 
+import { useCurrentSalary } from '@/features/salary/useSalary';
+
 import { type DashboardData } from './types';
 
 function greetingForHour(hour: number): string {
@@ -10,20 +12,22 @@ function greetingForHour(hour: number): string {
 }
 
 /**
- * MOCK dashboard data (Milestone 4).
+ * Dashboard data.
  *
- * Returns realistic Bangladeshi-Taka figures so the Dashboard UI can be built
- * and reviewed before the real data layer exists. In Milestones 5–7 the body of
- * this hook is replaced with Zustand selectors + calculations; its return type
- * (`DashboardData`) stays identical, so no card component needs to change.
+ * As of Milestone 5, `salary` is REAL — read from the persisted salary store.
+ * Expenses are still mock and become real in Milestones 6–7. The return type
+ * (`DashboardData`) is stable, so the cards never change as data becomes real.
  */
 export function useDashboardData(): DashboardData {
+  const salaryRecord = useCurrentSalary();
+
   return useMemo(() => {
     const now = new Date();
 
-    const salary = 45000;
-    const monthlyExpense = 28500;
-    const todayExpense = 850;
+    const salary = salaryRecord?.amount ?? 0;
+    const isSalarySet = salaryRecord != null;
+    const monthlyExpense = 28500; // mock until Milestone 6
+    const todayExpense = 850; // mock until Milestone 6
     const remaining = salary - monthlyExpense;
     const dayOfMonth = getDate(now);
     const dailyAverage = Math.round(monthlyExpense / Math.max(1, dayOfMonth));
@@ -35,6 +39,7 @@ export function useDashboardData(): DashboardData {
       monthLabel: format(now, 'MMMM yyyy'),
 
       salary,
+      isSalarySet,
       monthlyExpense,
       todayExpense,
       remaining,
@@ -96,5 +101,5 @@ export function useDashboardData(): DashboardData {
         { key: 'extra', label: 'Extra', icon: 'pricetag-outline', color: '#EC4899' },
       ],
     };
-  }, []);
+  }, [salaryRecord]);
 }
