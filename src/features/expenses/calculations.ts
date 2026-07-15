@@ -164,6 +164,43 @@ export function sortExpensesNewestFirst(expenses: Expense[]): Expense[] {
   );
 }
 
+/** One day of a month's spending series. */
+export type DailyPoint = {
+  /** Day of month, 1-based. */
+  day: number;
+  date: DateKey;
+  total: number;
+};
+
+/**
+ * Per-day spending across a month, with zero-filled gaps so the series is
+ * continuous (a day with no expenses is a real 0, not a missing point).
+ *
+ * The series is truncated at today for the current month — plotting days that
+ * haven't happened yet would draw a misleading run of zeroes to the month's end.
+ * Past months return every day; future months return an empty series.
+ */
+export function getDailySeriesForMonth(
+  expenses: Expense[],
+  month: MonthKey,
+  now: Date = new Date(),
+): DailyPoint[] {
+  const days = getElapsedDaysInMonth(month, now);
+  if (days <= 0) return [];
+
+  const inMonth = filterByMonth(expenses, month);
+  const totalsByDate = new Map<DateKey, number>();
+  for (const expense of inMonth) {
+    totalsByDate.set(expense.date, (totalsByDate.get(expense.date) ?? 0) + safeAmount(expense));
+  }
+
+  return Array.from({ length: days }, (_, index) => {
+    const day = index + 1;
+    const date = `${month}-${String(day).padStart(2, '0')}`;
+    return { day, date, total: totalsByDate.get(date) ?? 0 };
+  });
+}
+
 /** The `limit` most recent expenses, newest first. Defaults to 5. */
 export function getRecentExpenses(expenses: Expense[], limit: number = 5): Expense[] {
   const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.trunc(limit)) : 0;

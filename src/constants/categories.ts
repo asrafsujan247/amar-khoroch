@@ -1,5 +1,16 @@
+// Imported from the colors module directly rather than the `@/theme` barrel:
+// the barrel pulls in `shadows.ts` (which imports react-native), and this file
+// must stay free of native dependencies so it remains portable and testable.
+import { colors } from '@/theme/colors';
 import { type CategoryGroup, type CategoryId } from '@/types/expense';
 import { type IoniconName } from '@/types/icon';
+
+/**
+ * Category colors come from the validated categorical palette, one per slot in
+ * order. The slot order was chosen for colour-vision safety — see the notes on
+ * `colors.categorical` before changing any of this.
+ */
+const [YELLOW, GREEN, MAGENTA, BLUE, AQUA, VIOLET, ORANGE] = colors.categorical;
 
 /** Presentation metadata for a category. */
 export type CategoryMeta = {
@@ -17,13 +28,13 @@ export type CategoryMeta = {
  * used by the expense form, dashboard, history and statistics.
  */
 export const CATEGORIES: readonly CategoryMeta[] = [
-  { id: 'breakfast', label: 'Breakfast', group: 'daily', icon: 'cafe-outline', color: '#F59E0B' },
-  { id: 'lunch', label: 'Lunch', group: 'daily', icon: 'restaurant-outline', color: '#00B89A' },
-  { id: 'dinner', label: 'Dinner', group: 'daily', icon: 'pizza-outline', color: '#8B5CF6' },
-  { id: 'travel', label: 'Travel', group: 'daily', icon: 'car-outline', color: '#3B82F6' },
-  { id: 'extra', label: 'Extra', group: 'daily', icon: 'pricetag-outline', color: '#EC4899' },
-  { id: 'room-rent', label: 'Room Rent', group: 'monthly', icon: 'home-outline', color: '#14B8A6' },
-  { id: 'bazar', label: 'Bazar', group: 'monthly', icon: 'basket-outline', color: '#F97316' },
+  { id: 'breakfast', label: 'Breakfast', group: 'daily', icon: 'cafe-outline', color: YELLOW },
+  { id: 'lunch', label: 'Lunch', group: 'daily', icon: 'restaurant-outline', color: GREEN },
+  { id: 'dinner', label: 'Dinner', group: 'daily', icon: 'pizza-outline', color: MAGENTA },
+  { id: 'travel', label: 'Travel', group: 'daily', icon: 'car-outline', color: BLUE },
+  { id: 'extra', label: 'Extra', group: 'daily', icon: 'pricetag-outline', color: AQUA },
+  { id: 'room-rent', label: 'Room Rent', group: 'monthly', icon: 'home-outline', color: VIOLET },
+  { id: 'bazar', label: 'Bazar', group: 'monthly', icon: 'basket-outline', color: ORANGE },
 ];
 
 export const CATEGORY_MAP: Record<CategoryId, CategoryMeta> = CATEGORIES.reduce(

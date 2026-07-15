@@ -54,18 +54,29 @@ export const colors = {
   info: { DEFAULT: '#3B82F6', light: '#DBEAFE', dark: '#1D4ED8' },
 
   /**
-   * Categorical palette for charts / category tags. Brand teal leads, followed
-   * by distinct, accessible hues. Refined against the dataviz guidance in M8.
+   * Categorical palette for charts and category identity.
+   *
+   * VALIDATED for colour-vision deficiency against the white card surface:
+   * worst adjacent ΔE 13.0 (protan) and 24.0 (normal vision) — clearing the
+   * >=8 CVD target and the >=15 normal-vision floor.
+   *
+   * The slot ORDER is the safety mechanism, not cosmetic — adjacency is what
+   * was validated, and `CATEGORIES` maps 1:1 onto these slots in order. Do NOT
+   * reorder, recolour or extend this list without re-running the dataviz
+   * palette validator; the previous palette had two hues that were effectively
+   * identical to deuteranopes (ΔE 1.3).
+   *
+   * Slots 1, 3 and 5 sit below 3:1 contrast on white, so any chart using them
+   * must ship visible labels (the category breakdown list serves this role).
    */
   categorical: [
-    '#00E0BA',
-    '#3B82F6',
-    '#F59E0B',
-    '#EF4444',
-    '#8B5CF6',
-    '#EC4899',
-    '#14B8A6',
-    '#F97316',
+    '#EDA100', // 1 yellow
+    '#008300', // 2 green
+    '#E87BA4', // 3 magenta
+    '#2A78D6', // 4 blue
+    '#1BAF7A', // 5 aqua
+    '#4A3AA7', // 6 violet
+    '#EB6834', // 7 orange
   ],
 } as const;
 
