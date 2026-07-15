@@ -3,9 +3,25 @@ import '../global.css';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { enableFreeze } from 'react-native-screens';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { colors } from '@/theme';
+
+/**
+ * Freeze blurred screens.
+ *
+ * Every tab subscribes to the same stores, so without this, saving one expense
+ * re-renders Dashboard, Statistics AND History — even though two of them are
+ * offscreen. Freezing suspends a screen's subtree while it is blurred; it
+ * re-renders with current data when refocused.
+ *
+ * One call is enough: react-native-screens' `Screen` defaults its `freezeOnBlur`
+ * prop to `freezeEnabled()`, and Expo Router's TabSlot forwards that prop — so
+ * enabling the feature globally covers every screen. (Freezing is off by
+ * default: `ENABLE_FREEZE = false` in the library's core.)
+ */
+enableFreeze(true);
 
 /**
  * Shared options for the app's modal routes (add/edit expense, salary,
