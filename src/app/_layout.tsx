@@ -31,6 +31,7 @@ export default function RootLayout() {
         >
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="add-expense" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="expense/[id]" options={{ presentation: 'modal' }} />
           <Stack.Screen name="salary" options={{ presentation: 'modal' }} />
         </Stack>
       </SafeAreaProvider>

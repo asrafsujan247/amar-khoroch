@@ -1,8 +1,7 @@
-import { type ComponentProps } from 'react';
-import { type Ionicons } from '@expo/vector-icons';
+import { type IoniconName } from '@/types/icon';
 
-/** Type-safe Ionicons glyph name, shared by all dashboard cards. */
-export type IoniconName = ComponentProps<typeof Ionicons>['name'];
+/** Re-exported so dashboard cards keep a single import site for the icon type. */
+export type { IoniconName };
 
 /** A single expense as shown in the "Recent Expenses" list (presentation-ready). */
 export type RecentExpense = {

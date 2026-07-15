@@ -12,6 +12,7 @@ import {
   StatTile,
 } from '@/features/dashboard/components';
 import { useDashboardData } from '@/features/dashboard/useDashboardData';
+import { useExpensesHydrated } from '@/features/expenses/useExpenses';
 import { useEnsureCurrentMonthSalary, useSalaryHydrated } from '@/features/salary/useSalary';
 import { colors } from '@/theme';
 import { formatCurrency } from '@/utils/currency';
@@ -25,11 +26,13 @@ import { formatCurrency } from '@/utils/currency';
  */
 export default function DashboardScreen() {
   useEnsureCurrentMonthSalary();
-  const hydrated = useSalaryHydrated();
+  const salaryHydrated = useSalaryHydrated();
+  const expensesHydrated = useExpensesHydrated();
   const data = useDashboardData();
 
-  // Wait for persisted salary to load so the salary card doesn't flash its
-  // "not set" state on launch.
+  // Wait for persisted data to load so the dashboard doesn't flash empty
+  // totals or a "salary not set" state on launch.
+  const hydrated = salaryHydrated && expensesHydrated;
   if (!hydrated) {
     return (
       <Screen>
@@ -92,13 +95,13 @@ export default function DashboardScreen() {
 
         <QuickAddCategories
           categories={data.quickCategories}
-          onSelect={() => router.push('/add-expense')}
+          onSelect={(category) => router.push({ pathname: '/add-expense', params: { category } })}
         />
 
         <RecentExpenses
           expenses={data.recentExpenses}
           onSeeAll={() => router.push('/history')}
-          onPressExpense={() => router.push('/history')}
+          onPressExpense={(id) => router.push({ pathname: '/expense/[id]', params: { id } })}
         />
       </ScrollView>
     </Screen>

@@ -1,14 +1,23 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 
-import { EmptyState, IconButton, Screen, Text } from '@/components/ui';
+import { IconButton, Screen, Text } from '@/components/ui';
+import { isCategoryId } from '@/constants/categories';
+import { ExpenseForm } from '@/features/expenses/components/ExpenseForm';
+import { useExpenseStore } from '@/store/expenseStore';
 
 /**
- * Add Expense screen, presented as a modal over the tabs. The fast-entry form
- * (amount, category, date, note) is built in Milestone 6; this milestone only
- * wires the modal into navigation.
+ * Add Expense — presented as a modal over the tabs.
+ *
+ * Accepts an optional `category` param so the dashboard's Quick Add shortcuts
+ * can open the form with a category already selected (fast entry).
  */
 export default function AddExpenseScreen() {
+  const { category } = useLocalSearchParams<{ category?: string }>();
+  const addExpense = useExpenseStore((state) => state.addExpense);
+
+  const presetCategory = category && isCategoryId(category) ? category : null;
+
   return (
     <Screen edges={['top', 'bottom']}>
       <View
@@ -28,13 +37,19 @@ export default function AddExpenseScreen() {
         />
       </View>
 
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        <EmptyState
-          icon="add-circle-outline"
-          title="Expense form coming soon"
-          description="The amount, category, date and note fields arrive in Milestone 6."
-        />
-      </View>
+      <ExpenseForm
+        defaultValues={{ category: presetCategory }}
+        submitLabel="Save expense"
+        onSubmit={(values) => {
+          addExpense({
+            amount: values.amount,
+            category: values.category,
+            date: values.date,
+            note: values.note,
+          });
+          router.back();
+        }}
+      />
     </Screen>
   );
 }

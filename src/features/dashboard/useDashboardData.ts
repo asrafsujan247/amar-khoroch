@@ -1,9 +1,21 @@
 import { useMemo } from 'react';
-import { format, getDate } from 'date-fns';
+import { format } from 'date-fns';
 
+import { CATEGORY_MAP, DAILY_CATEGORIES } from '@/constants/categories';
+import {
+  getDailyAverageForMonth,
+  getRecentExpenses,
+  getTodayTotal,
+  getTotalForMonth,
+} from '@/features/expenses/calculations';
+import { useExpenses } from '@/features/expenses/useExpenses';
 import { useCurrentSalary } from '@/features/salary/useSalary';
+import { type Expense } from '@/types/expense';
+import { formatRelativeDate, getMonthKey } from '@/utils/date';
 
-import { type DashboardData } from './types';
+import { type DashboardData, type RecentExpense } from './types';
+
+const RECENT_LIMIT = 5;
 
 function greetingForHour(hour: number): string {
   if (hour < 12) return 'Good morning';
@@ -11,26 +23,42 @@ function greetingForHour(hour: number): string {
   return 'Good evening';
 }
 
+/** Map a stored expense to its presentation-ready dashboard form. */
+function toRecentExpense(expense: Expense): RecentExpense {
+  const meta = CATEGORY_MAP[expense.category];
+  return {
+    id: expense.id,
+    categoryLabel: meta.label,
+    icon: meta.icon,
+    color: meta.color,
+    amount: expense.amount,
+    note: expense.note,
+    dateLabel: formatRelativeDate(expense.date),
+  };
+}
+
 /**
- * Dashboard data.
+ * Dashboard data — fully derived from persisted records as of Milestone 6.
  *
- * As of Milestone 5, `salary` is REAL — read from the persisted salary store.
- * Expenses are still mock and become real in Milestones 6–7. The return type
- * (`DashboardData`) is stable, so the cards never change as data becomes real.
+ * Salary comes from the salary store; every expense figure is computed from the
+ * expense records by the pure functions in `features/expenses/calculations`.
+ * Nothing here is hardcoded.
  */
 export function useDashboardData(): DashboardData {
   const salaryRecord = useCurrentSalary();
+  const expenses = useExpenses();
 
   return useMemo(() => {
     const now = new Date();
+    const month = getMonthKey(now);
 
     const salary = salaryRecord?.amount ?? 0;
     const isSalarySet = salaryRecord != null;
-    const monthlyExpense = 28500; // mock until Milestone 6
-    const todayExpense = 850; // mock until Milestone 6
+
+    const monthlyExpense = getTotalForMonth(expenses, month);
+    const todayExpense = getTodayTotal(expenses, now);
+    const dailyAverage = getDailyAverageForMonth(expenses, month, now);
     const remaining = salary - monthlyExpense;
-    const dayOfMonth = getDate(now);
-    const dailyAverage = Math.round(monthlyExpense / Math.max(1, dayOfMonth));
     const monthlyProgress = salary > 0 ? Math.min(1, monthlyExpense / salary) : 0;
 
     return {
@@ -47,59 +75,13 @@ export function useDashboardData(): DashboardData {
       monthlyProgress,
       budgetPercentUsed: salary > 0 ? Math.round((monthlyExpense / salary) * 100) : 0,
 
-      recentExpenses: [
-        {
-          id: '1',
-          categoryLabel: 'Lunch',
-          icon: 'restaurant-outline',
-          color: '#00B89A',
-          amount: 320,
-          note: 'Office canteen',
-          dateLabel: 'Today',
-        },
-        {
-          id: '2',
-          categoryLabel: 'Travel',
-          icon: 'car-outline',
-          color: '#3B82F6',
-          amount: 120,
-          dateLabel: 'Today',
-        },
-        {
-          id: '3',
-          categoryLabel: 'Bazar',
-          icon: 'basket-outline',
-          color: '#F97316',
-          amount: 1500,
-          note: 'Weekly groceries',
-          dateLabel: 'Yesterday',
-        },
-        {
-          id: '4',
-          categoryLabel: 'Dinner',
-          icon: 'pizza-outline',
-          color: '#8B5CF6',
-          amount: 450,
-          dateLabel: 'Yesterday',
-        },
-        {
-          id: '5',
-          categoryLabel: 'Extra',
-          icon: 'pricetag-outline',
-          color: '#EC4899',
-          amount: 200,
-          note: 'Mobile recharge',
-          dateLabel: '12 Jul',
-        },
-      ],
-
-      quickCategories: [
-        { key: 'breakfast', label: 'Breakfast', icon: 'cafe-outline', color: '#F59E0B' },
-        { key: 'lunch', label: 'Lunch', icon: 'restaurant-outline', color: '#00B89A' },
-        { key: 'dinner', label: 'Dinner', icon: 'pizza-outline', color: '#8B5CF6' },
-        { key: 'travel', label: 'Travel', icon: 'car-outline', color: '#3B82F6' },
-        { key: 'extra', label: 'Extra', icon: 'pricetag-outline', color: '#EC4899' },
-      ],
+      recentExpenses: getRecentExpenses(expenses, RECENT_LIMIT).map(toRecentExpense),
+      quickCategories: DAILY_CATEGORIES.map((category) => ({
+        key: category.id,
+        label: category.label,
+        icon: category.icon,
+        color: category.color,
+      })),
     };
-  }, [salaryRecord]);
+  }, [salaryRecord, expenses]);
 }
