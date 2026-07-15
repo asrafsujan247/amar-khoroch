@@ -12,8 +12,8 @@ import {
   StatTile,
 } from '@/features/dashboard/components';
 import { useDashboardData } from '@/features/dashboard/useDashboardData';
-import { useExpensesHydrated } from '@/features/expenses/useExpenses';
-import { useEnsureCurrentMonthSalary, useSalaryHydrated } from '@/features/salary/useSalary';
+import { useEnsureCurrentMonthSalary } from '@/features/salary/useSalary';
+import { useAppHydrated } from '@/store/hydration';
 import { colors } from '@/theme';
 import { formatCurrency } from '@/utils/currency';
 
@@ -26,13 +26,11 @@ import { formatCurrency } from '@/utils/currency';
  */
 export default function DashboardScreen() {
   useEnsureCurrentMonthSalary();
-  const salaryHydrated = useSalaryHydrated();
-  const expensesHydrated = useExpensesHydrated();
+  const hydrated = useAppHydrated();
   const data = useDashboardData();
 
   // Wait for persisted data to load so the dashboard doesn't flash empty
   // totals or a "salary not set" state on launch.
-  const hydrated = salaryHydrated && expensesHydrated;
   if (!hydrated) {
     return (
       <Screen>

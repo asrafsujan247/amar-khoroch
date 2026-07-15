@@ -5,7 +5,7 @@ import { type SalaryRecord } from '@/types/salary';
 import { getPreviousMonthKey, type MonthKey } from '@/utils/date';
 import { createId } from '@/utils/id';
 
-import { asyncJSONStorage } from './storage';
+import { asyncJSONStorage, storageKey } from './storage';
 
 /** How many months back to look when carrying a salary forward. */
 const CARRY_FORWARD_LOOKBACK = 24;
@@ -20,6 +20,8 @@ type SalaryState = {
   upsertSalary: (month: MonthKey, amount: number) => void;
   /** Remove a month's salary. */
   deleteSalary: (month: MonthKey) => void;
+  /** Remove every salary record (used by Settings → Reset App). */
+  clearSalaries: () => void;
   /**
    * Ensure a record exists for `month`. If missing, carry forward the amount
    * from the most recent prior month that has one (flagged `carriedForward`).
@@ -81,15 +83,27 @@ export const useSalaryStore = create<SalaryState>()(
         }
       },
 
+      clearSalaries: () => set({ salaries: {} }),
+
       setHydrated: () => set({ hasHydrated: true }),
     }),
     {
-      name: 'salary-store',
+      name: storageKey('salary'),
+      // Bump this whenever the persisted shape of `SalaryRecord` changes and add
+      // a `migrate` handler that upgrades old payloads. Without a migrate for a
+      // new version, Zustand discards the old data — so never bump without one.
+      version: 1,
       storage: asyncJSONStorage,
       // Only the data is persisted; the hydration flag is runtime-only.
       partialize: (state) => ({ salaries: state.salaries }),
-      onRehydrateStorage: () => (state) => {
-        state?.setHydrated();
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.warn('[salary-store] Could not restore saved salary.', error);
+        }
+        // Always mark hydration complete — even on failure — so screens gated on
+        // hydration never hang forever. A failed restore leaves an empty but
+        // fully usable store rather than a stuck loading screen.
+        (state ?? useSalaryStore.getState()).setHydrated();
       },
     },
   ),

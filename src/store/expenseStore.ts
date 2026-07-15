@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 import { type Expense, type ExpenseInput } from '@/types/expense';
 import { createId } from '@/utils/id';
 
-import { asyncJSONStorage } from './storage';
+import { asyncJSONStorage, storageKey } from './storage';
 
 /**
  * Collapse a blank note to `undefined` so empty strings are never persisted.
@@ -79,12 +79,23 @@ export const useExpenseStore = create<ExpenseState>()(
       setHydrated: () => set({ hasHydrated: true }),
     }),
     {
-      name: 'expense-store',
+      name: storageKey('expense'),
+      // Bump this whenever the persisted shape of `Expense` changes (e.g. custom
+      // categories, wallets, sync metadata) and add a `migrate` handler that
+      // upgrades old payloads. Without a migrate for a new version, Zustand
+      // discards the old data — so never bump without one.
+      version: 1,
       storage: asyncJSONStorage,
       // Only the data is persisted; the hydration flag is runtime-only.
       partialize: (state) => ({ expenses: state.expenses }),
-      onRehydrateStorage: () => (state) => {
-        state?.setHydrated();
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.warn('[expense-store] Could not restore saved expenses.', error);
+        }
+        // Always mark hydration complete — even on failure — so screens gated on
+        // hydration never hang forever. A failed restore leaves an empty but
+        // fully usable store rather than a stuck loading screen.
+        (state ?? useExpenseStore.getState()).setHydrated();
       },
     },
   ),
