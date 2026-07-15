@@ -10,7 +10,7 @@ import { MonthStepper } from '@/features/statistics/components/MonthStepper';
 import { useStatisticsData } from '@/features/statistics/useStatisticsData';
 import { useAppHydrated } from '@/store/hydration';
 import { colors } from '@/theme';
-import { formatCurrency } from '@/utils/currency';
+import { useMoney } from '@/hooks/useMoney';
 import { getCurrentMonthKey, getMonthKey, getPreviousMonthKey, monthKeyToDate } from '@/utils/date';
 import { addMonths } from 'date-fns';
 
@@ -30,6 +30,7 @@ function budgetColor(percentUsed: number): string {
 export default function StatisticsScreen() {
   const [month, setMonth] = useState(getCurrentMonthKey);
   const hydrated = useAppHydrated();
+  const money = useMoney();
   const data = useStatisticsData(month);
 
   if (!hydrated) {
@@ -62,7 +63,7 @@ export default function StatisticsScreen() {
           <View style={{ flex: 1 }}>
             <StatTile
               label="Monthly Spending"
-              value={formatCurrency(data.monthlyTotal)}
+              value={money(data.monthlyTotal)}
               icon="calendar-outline"
               iconColor="#2A78D6"
               iconBgColor="#DBEAFE"
@@ -71,7 +72,7 @@ export default function StatisticsScreen() {
           <View style={{ flex: 1 }}>
             <StatTile
               label="Average Daily"
-              value={formatCurrency(data.dailyAverage)}
+              value={money(data.dailyAverage)}
               icon="speedometer-outline"
               iconColor={colors.primary[700]}
               iconBgColor={colors.primary[50]}
@@ -101,7 +102,7 @@ export default function StatisticsScreen() {
               <View style={{ flex: 1 }}>
                 <Text variant="h2">{data.highest.label}</Text>
                 <Text variant="caption" color="secondary">
-                  {formatCurrency(data.highest.total)} of {formatCurrency(data.monthlyTotal)}
+                  {money(data.highest.total)} of {money(data.monthlyTotal)}
                 </Text>
               </View>
             </View>
@@ -127,10 +128,10 @@ export default function StatisticsScreen() {
           />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
             <Text variant="caption" color="secondary">
-              Spent {formatCurrency(data.monthlyTotal)}
+              Spent {money(data.monthlyTotal)}
             </Text>
             <Text variant="caption" color="secondary">
-              Salary {formatCurrency(data.salary)}
+              Salary {money(data.salary)}
             </Text>
           </View>
         </Card>

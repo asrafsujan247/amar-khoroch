@@ -4,7 +4,7 @@ import { PieChart, type pieDataItem } from 'react-native-gifted-charts';
 import { Card, EmptyState, Text } from '@/components/ui';
 import { colors, spacing } from '@/theme';
 import { type CategorySlice } from '@/features/statistics/types';
-import { formatCurrency } from '@/utils/currency';
+import { useMoney } from '@/hooks/useMoney';
 
 /** Outer radius of the donut, in px. */
 const RADIUS = 90;
@@ -43,6 +43,7 @@ export type CategoryDonutProps = {
  * that palette slots below 3:1 contrast on white require.
  */
 export function CategoryDonut({ slices, total }: CategoryDonutProps) {
+  const money = useMoney();
   return (
     <Card>
       <View>
@@ -67,7 +68,7 @@ export function CategoryDonut({ slices, total }: CategoryDonutProps) {
             strokeWidth={SLICE_GAP}
             centerLabelComponent={() => (
               <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                <Text variant="h2">{formatCurrency(total)}</Text>
+                <Text variant="h2">{money(total)}</Text>
                 <Text variant="caption" color="secondary">
                   Total
                 </Text>

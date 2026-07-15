@@ -15,7 +15,7 @@ import { useDashboardData } from '@/features/dashboard/useDashboardData';
 import { useEnsureCurrentMonthSalary } from '@/features/salary/useSalary';
 import { useAppHydrated } from '@/store/hydration';
 import { colors } from '@/theme';
-import { formatCurrency } from '@/utils/currency';
+import { useMoney } from '@/hooks/useMoney';
 
 /**
  * Dashboard — the app's home screen.
@@ -27,6 +27,7 @@ import { formatCurrency } from '@/utils/currency';
 export default function DashboardScreen() {
   useEnsureCurrentMonthSalary();
   const hydrated = useAppHydrated();
+  const money = useMoney();
   const data = useDashboardData();
 
   // Wait for persisted data to load so the dashboard doesn't flash empty
@@ -67,7 +68,7 @@ export default function DashboardScreen() {
           <View style={{ flex: 1 }}>
             <StatTile
               label="Today's Expense"
-              value={formatCurrency(data.todayExpense)}
+              value={money(data.todayExpense)}
               icon="today-outline"
               iconColor="#EF4444"
               iconBgColor="#FEE2E2"
@@ -76,7 +77,7 @@ export default function DashboardScreen() {
           <View style={{ flex: 1 }}>
             <StatTile
               label="Monthly Expense"
-              value={formatCurrency(data.monthlyExpense)}
+              value={money(data.monthlyExpense)}
               icon="calendar-outline"
               iconColor="#3B82F6"
               iconBgColor="#DBEAFE"

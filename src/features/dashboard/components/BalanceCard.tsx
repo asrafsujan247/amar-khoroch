@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { ProgressBar, Text } from '@/components/ui';
 import { radii, shadows, spacing } from '@/theme';
-import { formatCurrency } from '@/utils/currency';
+import { useMoney } from '@/hooks/useMoney';
 
 export type BalanceCardProps = {
   /** Money left this month (salary − spent). May be negative when overspent. */
@@ -25,6 +25,7 @@ const SOFTER_WHITE = 'rgba(255,255,255,0.9)';
  * The LinearGradient is the surface itself, so this is not wrapped in a Card.
  */
 export function BalanceCard({ remaining, salary, spent }: BalanceCardProps) {
+  const money = useMoney();
   const progress = salary > 0 ? spent / salary : 0;
 
   return (
@@ -55,7 +56,7 @@ export function BalanceCard({ remaining, salary, spent }: BalanceCardProps) {
       </View>
 
       <Text variant="display" color="inverse" style={{ marginTop: spacing.sm }}>
-        {formatCurrency(remaining)}
+        {money(remaining)}
       </Text>
 
       <ProgressBar
@@ -75,10 +76,10 @@ export function BalanceCard({ remaining, salary, spent }: BalanceCardProps) {
         }}
       >
         <Text variant="caption" style={{ color: SOFTER_WHITE }}>
-          {`Spent ${formatCurrency(spent)}`}
+          {`Spent ${money(spent)}`}
         </Text>
         <Text variant="caption" style={{ color: SOFTER_WHITE }}>
-          {`Salary ${formatCurrency(salary)}`}
+          {`Salary ${money(salary)}`}
         </Text>
       </View>
     </LinearGradient>

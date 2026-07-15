@@ -1,5 +1,6 @@
 import { useExpenseStore } from '@/store/expenseStore';
 import { useSalaryStore } from '@/store/salaryStore';
+import { useSettingsStore } from '@/store/settingsStore';
 
 import { type Backup, buildBackup } from './backupFormat';
 
@@ -29,20 +30,28 @@ export function createBackup(): Backup {
   return buildBackup({
     salaries: useSalaryStore.getState().salaries,
     expenses: useExpenseStore.getState().expenses,
+    settings: { currencyCode: useSettingsStore.getState().currencyCode },
   });
 }
 
 /**
  * Replace ALL local data with a validated backup. Destructive by design —
  * callers must confirm with the user first.
+ *
+ * `settings` is optional (absent in v1 backups); when missing, the current
+ * preferences are left untouched rather than reset.
  */
 export function restoreBackup(backup: Backup): void {
   useSalaryStore.setState({ salaries: backup.data.salaries });
   useExpenseStore.setState({ expenses: backup.data.expenses });
+  if (backup.data.settings) {
+    useSettingsStore.setState({ currencyCode: backup.data.settings.currencyCode });
+  }
 }
 
-/** Wipe all app data (Settings → Reset App). */
+/** Wipe all app data and restore default preferences (Settings → Reset App). */
 export function resetAllData(): void {
   useSalaryStore.getState().clearSalaries();
   useExpenseStore.getState().clearExpenses();
+  useSettingsStore.getState().resetSettings();
 }

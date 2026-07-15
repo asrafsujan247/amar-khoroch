@@ -4,7 +4,8 @@ import { View } from 'react-native';
 import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
 import { colors, typography } from '@/theme';
-import { CURRENCY_SYMBOL, formatCurrency, parseAmount } from '@/utils/currency';
+import { useCurrency } from '@/hooks/useMoney';
+import { formatCurrency, parseAmount } from '@/utils/currency';
 
 export type AmountInputProps = {
   /** Current numeric value, or `null` when empty. */
@@ -41,6 +42,7 @@ export function AmountInput({
   autoFocus,
   placeholder = '0',
 }: AmountInputProps) {
+  const currency = useCurrency();
   const [text, setText] = useState<string>(() =>
     value == null ? '' : formatCurrency(value, { showSymbol: false }),
   );
@@ -88,7 +90,7 @@ export function AmountInput({
         }}
       >
         <Text variant="h2" weight="bold" color="secondary">
-          {CURRENCY_SYMBOL}
+          {currency.symbol}
         </Text>
       </View>
     </View>

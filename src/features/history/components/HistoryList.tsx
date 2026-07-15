@@ -5,7 +5,7 @@ import { Divider, EmptyState, Text } from '@/components/ui';
 import { spacing } from '@/theme';
 import { ExpenseRow } from '@/features/expenses/components/ExpenseRow';
 import { type ExpenseListItem } from '@/features/expenses/types';
-import { formatCurrency } from '@/utils/currency';
+import { useMoney } from '@/hooks/useMoney';
 
 type RowProps = {
   /** The expense to render. */
@@ -79,6 +79,8 @@ export function HistoryList({
   onPressItem,
   ListHeaderComponent,
 }: HistoryListProps) {
+  const money = useMoney();
+
   const renderItem = useCallback<ListRenderItem<ExpenseListItem>>(
     ({ item }) => <Row item={item} onPressItem={onPressItem} />,
     [onPressItem],
@@ -94,12 +96,12 @@ export function HistoryList({
             <Text variant="caption" color="secondary">
               {`${items.length} ${items.length === 1 ? 'expense' : 'expenses'}`}
             </Text>
-            <Text variant="subtitle">{formatCurrency(total)}</Text>
+            <Text variant="subtitle">{money(total)}</Text>
           </View>
         ) : null}
       </View>
     ),
-    [ListHeaderComponent, items.length, total],
+    [ListHeaderComponent, items.length, total, money],
   );
 
   const empty = useMemo(() => {

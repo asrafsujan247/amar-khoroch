@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { Badge, Card, Divider, ProgressBar, Text, type BadgeTone } from '@/components/ui';
 import { colors, spacing } from '@/theme';
-import { formatCurrency } from '@/utils/currency';
+import { useMoney } from '@/hooks/useMoney';
 
 export type MonthlyProgressCardProps = {
   /** Fraction of the budget consumed, 0–1, for the progress bar. */
@@ -26,6 +26,7 @@ export function MonthlyProgressCard({
   dailyAverage,
   remaining,
 }: MonthlyProgressCardProps) {
+  const money = useMoney();
   const tone: BadgeTone =
     budgetPercentUsed < 75 ? 'brand' : budgetPercentUsed < 90 ? 'warning' : 'danger';
   const fillColor =
@@ -58,7 +59,7 @@ export function MonthlyProgressCard({
             Daily Average
           </Text>
           <Text variant="subtitle" style={{ marginTop: spacing.xs }}>
-            {formatCurrency(dailyAverage)}
+            {money(dailyAverage)}
           </Text>
         </View>
 
@@ -71,7 +72,7 @@ export function MonthlyProgressCard({
             color={remaining < 0 ? 'danger' : 'default'}
             style={{ marginTop: spacing.xs }}
           >
-            {formatCurrency(remaining)}
+            {money(remaining)}
           </Text>
         </View>
       </View>

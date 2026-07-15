@@ -16,7 +16,11 @@ import { isCategoryId } from '@/constants/categories';
  */
 
 export const BACKUP_APP_ID = 'salary-expense-tracker';
-export const BACKUP_VERSION = 1;
+/**
+ * v2 added the optional `settings` slice. Because the slice is optional, v1
+ * files still validate and import — which is the point of stamping the version.
+ */
+export const BACKUP_VERSION = 2;
 
 /** Thrown for any invalid/unreadable backup, with a user-presentable message. */
 export class BackupError extends Error {
@@ -47,9 +51,15 @@ const salaryRecordSchema = z.object({
   updatedAt: z.string().min(1),
 });
 
+const settingsSchema = z.object({
+  currencyCode: z.string().min(1),
+});
+
 const backupDataSchema = z.object({
   salaries: z.record(z.string(), salaryRecordSchema),
   expenses: z.array(expenseSchema),
+  /** Added in backup v2 — optional so v1 files still import cleanly. */
+  settings: settingsSchema.optional(),
 });
 
 const backupSchema = z.object({

@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { Text } from '@/components/ui';
 import { type ExpenseListItem } from '@/features/expenses/types';
-import { formatCurrency } from '@/utils/currency';
+import { useMoney } from '@/hooks/useMoney';
 
 export type ExpenseRowProps = {
   /** The expense to render (presentation-ready). */
@@ -22,11 +22,12 @@ export type ExpenseRowProps = {
  * a list. Memoized because History renders this in a long FlatList.
  */
 export const ExpenseRow = memo(function ExpenseRow({ expense, onPress }: ExpenseRowProps) {
+  const money = useMoney();
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${expense.categoryLabel}, ${formatCurrency(expense.amount)}, ${expense.dateLabel}`}
+      accessibilityLabel={`${expense.categoryLabel}, ${money(expense.amount)}, ${expense.dateLabel}`}
       style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
@@ -57,7 +58,7 @@ export const ExpenseRow = memo(function ExpenseRow({ expense, onPress }: Expense
       </View>
 
       <View style={{ alignItems: 'flex-end' }}>
-        <Text variant="bodyStrong">{formatCurrency(expense.amount)}</Text>
+        <Text variant="bodyStrong">{money(expense.amount)}</Text>
         <Text variant="caption" color="tertiary">
           {expense.dateLabel}
         </Text>

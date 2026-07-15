@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card, EmptyState, ProgressBar, Text } from '@/components/ui';
 import { colors, radii, spacing } from '@/theme';
 import { type CategorySlice } from '@/features/statistics/types';
-import { formatCurrency } from '@/utils/currency';
+import { useMoney } from '@/hooks/useMoney';
 
 export type CategoryBreakdownProps = {
   /** Categories with spending this month. Rendered highest-first; never mutated. */
@@ -28,6 +28,7 @@ export type CategoryBreakdownProps = {
  *   untouched, and only the chip and bar wear it. Text stays on ink tokens.
  */
 export function CategoryBreakdown({ slices }: CategoryBreakdownProps) {
+  const money = useMoney();
   const ranked = useMemo(() => [...slices].sort((a, b) => b.total - a.total), [slices]);
 
   return (
@@ -49,7 +50,7 @@ export function CategoryBreakdown({ slices }: CategoryBreakdownProps) {
               <View
                 key={slice.id}
                 accessible
-                accessibilityLabel={`${slice.label}, ${formatCurrency(slice.total)}, ${percent}% of spending`}
+                accessibilityLabel={`${slice.label}, ${money(slice.total)}, ${percent}% of spending`}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View
@@ -74,7 +75,7 @@ export function CategoryBreakdown({ slices }: CategoryBreakdownProps) {
                   </Text>
 
                   <View style={{ alignItems: 'flex-end', marginLeft: spacing.sm }}>
-                    <Text variant="subtitle">{formatCurrency(slice.total)}</Text>
+                    <Text variant="subtitle">{money(slice.total)}</Text>
                     <Text variant="caption" color="secondary">
                       {`${percent}%`}
                     </Text>

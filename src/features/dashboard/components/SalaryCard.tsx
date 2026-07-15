@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { Button, Card, Text } from '@/components/ui';
 import { colors, radii, spacing } from '@/theme';
-import { formatCurrency } from '@/utils/currency';
+import { useMoney } from '@/hooks/useMoney';
 
 export type SalaryCardProps = {
   /** Monthly salary amount in Taka. Ignored when `isSet` is false. */
@@ -37,6 +37,8 @@ const IconChip = () => (
  * prominent "Set salary" call-to-action so the once-a-month entry is obvious.
  */
 export function SalaryCard({ salary, isSet, monthLabel, onEdit }: SalaryCardProps) {
+  const money = useMoney();
+
   if (!isSet) {
     return (
       <Card>
@@ -71,7 +73,7 @@ export function SalaryCard({ salary, isSet, monthLabel, onEdit }: SalaryCardProp
           <Text variant="overline" color="tertiary">
             MONTHLY SALARY
           </Text>
-          <Text variant="h2">{formatCurrency(salary)}</Text>
+          <Text variant="h2">{money(salary)}</Text>
           <Text variant="caption" color="secondary">
             {monthLabel}
           </Text>
