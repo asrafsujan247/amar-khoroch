@@ -8,6 +8,16 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors } from '@/theme';
 
 /**
+ * Shared options for the app's modal routes (add/edit expense, salary,
+ * currency). They slide up from the bottom, which reads as "a sheet over the
+ * current screen" rather than a navigation push.
+ */
+const MODAL_OPTIONS = {
+  presentation: 'modal',
+  animation: 'slide_from_bottom',
+} as const;
+
+/**
  * Root layout for the whole app.
  *
  * Wraps every route in the providers the app depends on:
@@ -27,13 +37,16 @@ export default function RootLayout() {
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: colors.background },
+            // Subtle, native-feeling push. Modals override this below.
+            animation: 'slide_from_right',
+            animationDuration: 260,
           }}
         >
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="add-expense" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="expense/[id]" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="salary" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="currency" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="add-expense" options={MODAL_OPTIONS} />
+          <Stack.Screen name="expense/[id]" options={MODAL_OPTIONS} />
+          <Stack.Screen name="salary" options={MODAL_OPTIONS} />
+          <Stack.Screen name="currency" options={MODAL_OPTIONS} />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

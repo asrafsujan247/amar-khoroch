@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 
-import { Screen } from '@/components/ui';
+import { Appear, Screen } from '@/components/ui';
 import {
   BalanceCard,
   GreetingHeader,
@@ -48,23 +48,34 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 28, gap: 16 }}
       >
-        <GreetingHeader
-          greeting={data.greeting}
-          userName={data.userName}
-          monthLabel={data.monthLabel}
-          onPressSettings={() => router.push('/settings')}
-        />
+        {/* Cards cascade in on mount; `Appear` is a no-op under reduce motion. */}
+        <Appear index={0}>
+          <GreetingHeader
+            greeting={data.greeting}
+            userName={data.userName}
+            monthLabel={data.monthLabel}
+            onPressSettings={() => router.push('/settings')}
+          />
+        </Appear>
 
-        <BalanceCard remaining={data.remaining} salary={data.salary} spent={data.monthlyExpense} />
+        <Appear index={1}>
+          <BalanceCard
+            remaining={data.remaining}
+            salary={data.salary}
+            spent={data.monthlyExpense}
+          />
+        </Appear>
 
-        <SalaryCard
-          salary={data.salary}
-          isSet={data.isSalarySet}
-          monthLabel={data.monthLabel}
-          onEdit={() => router.push('/salary')}
-        />
+        <Appear index={2}>
+          <SalaryCard
+            salary={data.salary}
+            isSet={data.isSalarySet}
+            monthLabel={data.monthLabel}
+            onEdit={() => router.push('/salary')}
+          />
+        </Appear>
 
-        <View style={{ flexDirection: 'row', gap: 12 }}>
+        <Appear index={3} style={{ flexDirection: 'row', gap: 12 }}>
           <View style={{ flex: 1 }}>
             <StatTile
               label="Today's Expense"
@@ -83,25 +94,31 @@ export default function DashboardScreen() {
               iconBgColor="#DBEAFE"
             />
           </View>
-        </View>
+        </Appear>
 
-        <MonthlyProgressCard
-          progress={data.monthlyProgress}
-          budgetPercentUsed={data.budgetPercentUsed}
-          dailyAverage={data.dailyAverage}
-          remaining={data.remaining}
-        />
+        <Appear index={4}>
+          <MonthlyProgressCard
+            progress={data.monthlyProgress}
+            budgetPercentUsed={data.budgetPercentUsed}
+            dailyAverage={data.dailyAverage}
+            remaining={data.remaining}
+          />
+        </Appear>
 
-        <QuickAddCategories
-          categories={data.quickCategories}
-          onSelect={(category) => router.push({ pathname: '/add-expense', params: { category } })}
-        />
+        <Appear index={5}>
+          <QuickAddCategories
+            categories={data.quickCategories}
+            onSelect={(category) => router.push({ pathname: '/add-expense', params: { category } })}
+          />
+        </Appear>
 
-        <RecentExpenses
-          expenses={data.recentExpenses}
-          onSeeAll={() => router.push('/history')}
-          onPressExpense={(id) => router.push({ pathname: '/expense/[id]', params: { id } })}
-        />
+        <Appear index={6}>
+          <RecentExpenses
+            expenses={data.recentExpenses}
+            onSeeAll={() => router.push('/history')}
+            onPressExpense={(id) => router.push({ pathname: '/expense/[id]', params: { id } })}
+          />
+        </Appear>
       </ScrollView>
     </Screen>
   );

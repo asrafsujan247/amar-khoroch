@@ -41,6 +41,15 @@ export type CategoryDonutProps = {
  * Slices are intentionally unlabeled: the category breakdown list that
  * accompanies this chart is the legend, and it carries the per-category values
  * that palette slots below 3:1 contrast on white require.
+ *
+ * Deliberately NOT animated, and this is a trap worth knowing about. The shared
+ * `PieChartPropsType` declares `isAnimated` and `animationDuration`, so passing
+ * them here type-checks cleanly — but `PieChart` never reads them. Verified in
+ * react-native-gifted-charts@1.4.77: `dist/PieChart/{index,main}.js` contain no
+ * animation code at all; only the separate `PieChartPro` export implements those
+ * props. Adding them here would look right in review and do nothing at runtime.
+ * Animating this donut means migrating to `PieChartPro`, which is a rendering
+ * change, not an additive one — so it is a deliberate call, not a drive-by.
  */
 export function CategoryDonut({ slices, total }: CategoryDonutProps) {
   const money = useMoney();

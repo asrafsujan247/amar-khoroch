@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { ActivityIndicator, Alert, ScrollView, Switch, View } from 'react-native';
 import Constants from 'expo-constants';
 
-import { Screen, Text } from '@/components/ui';
+import { Appear, Screen, Text } from '@/components/ui';
 import { SettingsRow } from '@/features/settings/components/SettingsRow';
 import { SettingsSection } from '@/features/settings/components/SettingsSection';
 import { useCurrency } from '@/hooks/useMoney';
@@ -106,60 +106,66 @@ export default function SettingsScreen() {
       >
         <Text variant="h1">Settings</Text>
 
-        <SettingsSection title="Preferences">
-          <SettingsRow
-            icon="cash-outline"
-            label="Currency"
-            value={`${currency.symbol} ${currency.code}`}
-            onPress={() => router.push('/currency')}
-          />
-          <SettingsRow
-            icon="moon-outline"
-            label="Dark Mode"
-            description="Coming in a future version"
-            rightElement={<Switch value={false} disabled />}
-          />
-        </SettingsSection>
+        <Appear index={0}>
+          <SettingsSection title="Preferences">
+            <SettingsRow
+              icon="cash-outline"
+              label="Currency"
+              value={`${currency.symbol} ${currency.code}`}
+              onPress={() => router.push('/currency')}
+            />
+            <SettingsRow
+              icon="moon-outline"
+              label="Dark Mode"
+              description="Coming in a future version"
+              rightElement={<Switch value={false} disabled />}
+            />
+          </SettingsSection>
+        </Appear>
 
-        <SettingsSection title="Data">
-          <SettingsRow
-            icon="download-outline"
-            label="Export Data"
-            description="Save a backup file you can keep or share"
-            onPress={handleExport}
-            disabled={busy}
-          />
-          <SettingsRow
-            icon="cloud-upload-outline"
-            label="Import Data"
-            description="Restore from a backup file"
-            onPress={handleImport}
-            disabled={busy}
-          />
-          <SettingsRow
-            icon="trash-outline"
-            label="Reset App"
-            description="Delete all data and start over"
-            destructive
-            onPress={handleReset}
-            disabled={busy}
-          />
-        </SettingsSection>
+        <Appear index={1}>
+          <SettingsSection title="Data">
+            <SettingsRow
+              icon="download-outline"
+              label="Export Data"
+              description="Save a backup file you can keep or share"
+              onPress={handleExport}
+              disabled={busy}
+            />
+            <SettingsRow
+              icon="cloud-upload-outline"
+              label="Import Data"
+              description="Restore from a backup file"
+              onPress={handleImport}
+              disabled={busy}
+            />
+            <SettingsRow
+              icon="trash-outline"
+              label="Reset App"
+              description="Delete all data and start over"
+              destructive
+              onPress={handleReset}
+              disabled={busy}
+            />
+          </SettingsSection>
+        </Appear>
 
-        <SettingsSection title="About">
-          <SettingsRow
-            icon="information-circle-outline"
-            label="Version"
-            value={Constants.expoConfig?.version ?? '1.0.0'}
-            showChevron={false}
-          />
-          <SettingsRow
-            icon="wallet-outline"
-            label="Salary Expense Tracker"
-            description="Track your monthly salary and spending, privately on your device."
-            showChevron={false}
-          />
-        </SettingsSection>
+        <Appear index={2}>
+          <SettingsSection title="About">
+            <SettingsRow
+              icon="information-circle-outline"
+              label="Version"
+              value={Constants.expoConfig?.version ?? '1.0.0'}
+              showChevron={false}
+            />
+            <SettingsRow
+              icon="wallet-outline"
+              label="Salary Expense Tracker"
+              description="Track your monthly salary and spending, privately on your device."
+              showChevron={false}
+            />
+          </SettingsSection>
+        </Appear>
       </ScrollView>
     </Screen>
   );

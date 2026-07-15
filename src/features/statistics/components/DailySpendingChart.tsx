@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useWindowDimensions, View } from 'react-native';
+import { useReducedMotion } from 'react-native-reanimated';
 import { LineChart, ruleTypes, type lineDataItem } from 'react-native-gifted-charts';
 
 import { Card, EmptyState, Text } from '@/components/ui';
@@ -40,6 +41,22 @@ const MIN_CHART_WIDTH = 120;
 /** Brand-tinted area fill. Kept faint so the fill reads as support, not as a second mark. */
 const AREA_START_OPACITY = 0.18;
 const AREA_END_OPACITY = 0.02;
+
+/**
+ * Entrance sweep duration. The chart reveals the curve by animating the plot
+ * width left-to-right on `Easing.linear` — no overshoot, so the motion reads as
+ * the line being drawn rather than as an effect. Explicit rather than relying on
+ * the library's own 800ms default.
+ */
+const ENTRANCE_DURATION = 700;
+
+/**
+ * Duration for the old-curve -> new-curve morph when the month changes. Kept
+ * well under the entrance: this is a transition between two states the user is
+ * already looking at, not an introduction. The library drives it on
+ * `Easing.ease` and morphs the area fill alongside the stroke.
+ */
+const DATA_CHANGE_DURATION = 400;
 
 /**
  * Round `value` up to a "nice" axis maximum that divides evenly into `sections`.
@@ -83,6 +100,15 @@ export type DailySpendingChartProps = {
  */
 export function DailySpendingChart({ data }: DailySpendingChartProps) {
   const { width: windowWidth } = useWindowDimensions();
+
+  /**
+   * Accessibility: every animation below is gated on this. With the OS "reduce
+   * motion" setting on, the chart renders its final state immediately — matching
+   * how `Appear` drops its animated node entirely rather than trusting a default.
+   * Both flags must be gated: the entrance and the data-change morph are
+   * independent switches in gifted-charts, so gating only one still leaves motion.
+   */
+  const reducedMotion = useReducedMotion();
 
   /**
    * The chart's `width` is the PLOT area only — gifted-charts positions the plot
@@ -141,6 +167,13 @@ export function DailySpendingChart({ data }: DailySpendingChartProps) {
             endFillColor={colors.primary[500]}
             startOpacity={AREA_START_OPACITY}
             endOpacity={AREA_END_OPACITY}
+            // Motion — reduced-motion gated (see `reducedMotion` above).
+            // The entrance fires once on mount; it is not re-triggered by data
+            // changes, so the two animations below never compete.
+            isAnimated={!reducedMotion}
+            animationDuration={ENTRANCE_DURATION}
+            animateOnDataChange={!reducedMotion}
+            onDataChangeAnimationDuration={DATA_CHANGE_DURATION}
             // Scale.
             maxValue={maxValue}
             noOfSections={Y_AXIS_SECTIONS}

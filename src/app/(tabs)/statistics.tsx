@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 
-import { Card, ProgressBar, Screen, Text } from '@/components/ui';
+import { Appear, Card, ProgressBar, Screen, Text } from '@/components/ui';
 import { StatTile } from '@/features/dashboard/components';
 import { CategoryBreakdown } from '@/features/statistics/components/CategoryBreakdown';
 import { CategoryDonut } from '@/features/statistics/components/CategoryDonut';
@@ -136,11 +136,17 @@ export default function StatisticsScreen() {
           </View>
         </Card>
 
-        <DailySpendingChart data={data.dailySeries} />
+        <Appear index={4}>
+          <DailySpendingChart data={data.dailySeries} />
+        </Appear>
 
-        <CategoryDonut slices={data.slices} total={data.monthlyTotal} />
+        <Appear index={5}>
+          <CategoryDonut slices={data.slices} total={data.monthlyTotal} />
+        </Appear>
 
-        <CategoryBreakdown slices={data.slices} />
+        <Appear index={6}>
+          <CategoryBreakdown slices={data.slices} />
+        </Appear>
       </ScrollView>
     </Screen>
   );
