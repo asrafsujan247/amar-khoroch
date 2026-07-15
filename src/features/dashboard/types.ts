@@ -1,21 +1,16 @@
+import { type ExpenseListItem } from '@/features/expenses/types';
 import { type IoniconName } from '@/types/icon';
 
 /** Re-exported so dashboard cards keep a single import site for the icon type. */
 export type { IoniconName };
 
-/** A single expense as shown in the "Recent Expenses" list (presentation-ready). */
-export type RecentExpense = {
-  id: string;
-  categoryLabel: string;
-  /** Category glyph. */
-  icon: IoniconName;
-  /** Category accent color (hex). */
-  color: string;
-  amount: number;
-  note?: string;
-  /** Human date label, e.g. "Today", "Yesterday", "12 Jul". */
-  dateLabel: string;
-};
+/**
+ * A single expense in the dashboard's "Recent Expenses" list.
+ *
+ * The expense row is shared with the History screen, so the shape is owned by
+ * the expenses feature; this alias keeps the dashboard's vocabulary.
+ */
+export type RecentExpense = ExpenseListItem;
 
 /** A quick-add category shortcut on the dashboard. */
 export type QuickCategory = {

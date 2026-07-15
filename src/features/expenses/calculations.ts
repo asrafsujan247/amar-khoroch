@@ -20,11 +20,12 @@ import {
   subDays,
 } from 'date-fns';
 
-import { CATEGORY_IDS, isCategoryId } from '@/constants/categories';
+import { CATEGORY_IDS, CATEGORY_MAP, isCategoryId } from '@/constants/categories';
 import { type CategoryId, type Expense } from '@/types/expense';
 import {
   dateKeyToDate,
   getDateKey,
+  getMonthKey,
   getMonthKeyOf,
   monthKeyToDate,
   type DateKey,
@@ -77,13 +78,56 @@ export function getYesterdayTotal(expenses: Expense[], now: Date = new Date()): 
   return getTotalForDate(expenses, getDateKey(subDays(now, 1)));
 }
 
+/** Expenses recorded in the current week (Sunday through Saturday). */
+export function filterByWeek(expenses: Expense[], now: Date = new Date()): Expense[] {
+  const interval = { start: startOfWeek(now), end: endOfWeek(now) };
+  return expenses.filter((expense) => isWithinInterval(dateKeyToDate(expense.date), interval));
+}
+
 /** Total spent in the current week (Sunday through Saturday). */
 export function getWeekTotal(expenses: Expense[], now: Date = new Date()): number {
-  const interval = { start: startOfWeek(now), end: endOfWeek(now) };
-  const inWeek = expenses.filter((expense) =>
-    isWithinInterval(dateKeyToDate(expense.date), interval),
-  );
-  return sumAmount(inWeek);
+  return sumAmount(filterByWeek(expenses, now));
+}
+
+/** The named date ranges the History screen can filter by. */
+export type DateRangeFilter = 'all' | 'today' | 'yesterday' | 'week' | 'month';
+
+/** Apply a named date-range filter. `all` returns the list unchanged. */
+export function filterByRange(
+  expenses: Expense[],
+  filter: DateRangeFilter,
+  now: Date = new Date(),
+): Expense[] {
+  switch (filter) {
+    case 'today':
+      return filterByDate(expenses, getDateKey(now));
+    case 'yesterday':
+      return filterByDate(expenses, getDateKey(subDays(now, 1)));
+    case 'week':
+      return filterByWeek(expenses, now);
+    case 'month':
+      return filterByMonth(expenses, getMonthKey(now));
+    case 'all':
+    default:
+      return expenses;
+  }
+}
+
+/**
+ * Case-insensitive search across a category's label, the note and the amount.
+ * A blank query returns the list unchanged.
+ */
+export function searchExpenses(expenses: Expense[], query: string): Expense[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return expenses;
+
+  return expenses.filter((expense) => {
+    const label = CATEGORY_MAP[expense.category]?.label.toLowerCase() ?? '';
+    const note = expense.note?.toLowerCase() ?? '';
+    return (
+      label.includes(needle) || note.includes(needle) || String(expense.amount).includes(needle)
+    );
+  });
 }
 
 /**

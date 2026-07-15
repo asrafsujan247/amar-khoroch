@@ -1,29 +1,32 @@
+import { memo } from 'react';
 import { Pressable, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { Text } from '@/components/ui';
+import { type ExpenseListItem } from '@/features/expenses/types';
 import { formatCurrency } from '@/utils/currency';
-import type { RecentExpense } from '@/features/dashboard/types';
 
 export type ExpenseRowProps = {
   /** The expense to render (presentation-ready). */
-  expense: RecentExpense;
+  expense: ExpenseListItem;
   /** Called when the row is pressed. */
   onPress?: () => void;
 };
 
 /**
- * A single tappable row in the "Recent Expenses" list: a soft category-tinted
- * icon circle on the left, the category label with an optional note in the
- * middle, and the amount over a date label on the right. Renders without a
- * Card wrapper since the list groups rows inside one shared Card.
+ * A single tappable expense row: a soft category-tinted icon circle on the left,
+ * the category label with an optional note in the middle, and the amount over a
+ * date label on the right.
+ *
+ * Renders without a Card wrapper — callers group rows inside one shared Card or
+ * a list. Memoized because History renders this in a long FlatList.
  */
-export function ExpenseRow({ expense, onPress }: ExpenseRowProps) {
+export const ExpenseRow = memo(function ExpenseRow({ expense, onPress }: ExpenseRowProps) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${expense.categoryLabel}, ${formatCurrency(expense.amount)}`}
+      accessibilityLabel={`${expense.categoryLabel}, ${formatCurrency(expense.amount)}, ${expense.dateLabel}`}
       style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
@@ -61,4 +64,4 @@ export function ExpenseRow({ expense, onPress }: ExpenseRowProps) {
       </View>
     </Pressable>
   );
-}
+});

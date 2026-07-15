@@ -5,7 +5,7 @@ import { Card, Divider, EmptyState, Text } from '@/components/ui';
 import { spacing } from '@/theme';
 import type { RecentExpense } from '@/features/dashboard/types';
 
-import { ExpenseRow } from './ExpenseRow';
+import { ExpenseRow } from '@/features/expenses/components/ExpenseRow';
 
 export type RecentExpensesProps = {
   /** Expenses to list, newest first (presentation-ready). */
