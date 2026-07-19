@@ -42,9 +42,20 @@ export const useSalaryStore = create<SalaryState>()(
         set((state) => {
           const now = new Date().toISOString();
           const existing = state.salaries[month];
+          // `carriedForward` is set explicitly in BOTH branches: a user-entered
+          // salary is never a carry-forward, and leaving the field absent on
+          // create (while setting it on update) would be an inconsistency that a
+          // future `=== false` check would trip on.
           const record: SalaryRecord = existing
             ? { ...existing, amount, carriedForward: false, updatedAt: now }
-            : { id: createId(), month, amount, createdAt: now, updatedAt: now };
+            : {
+                id: createId(),
+                month,
+                amount,
+                carriedForward: false,
+                createdAt: now,
+                updatedAt: now,
+              };
           return { salaries: { ...state.salaries, [month]: record } };
         }),
 

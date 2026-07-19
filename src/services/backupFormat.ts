@@ -55,8 +55,21 @@ const settingsSchema = z.object({
   currencyCode: z.string().min(1),
 });
 
+const MONTH_KEY_PATTERN = /^\d{4}-\d{2}$/;
+
 const backupDataSchema = z.object({
-  salaries: z.record(z.string(), salaryRecordSchema),
+  /**
+   * Salaries are keyed by month. The KEY is validated too, not just the record:
+   * the app looks salaries up by month key, so a file whose key disagreed with
+   * its record's `month` would import "successfully" and then be invisible to
+   * the dashboard while still occupying the map. Reject that instead.
+   */
+  salaries: z
+    .record(z.string().regex(MONTH_KEY_PATTERN, { error: 'Invalid month key' }), salaryRecordSchema)
+    .refine(
+      (salaries) => Object.entries(salaries).every(([month, record]) => record.month === month),
+      { error: 'A salary is filed under the wrong month' },
+    ),
   expenses: z.array(expenseSchema),
   /** Added in backup v2 — optional so v1 files still import cleanly. */
   settings: settingsSchema.optional(),

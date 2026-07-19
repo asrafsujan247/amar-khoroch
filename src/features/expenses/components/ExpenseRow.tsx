@@ -26,7 +26,9 @@ export const ExpenseRow = memo(function ExpenseRow({ expense, onPress }: Expense
   return (
     <Pressable
       onPress={onPress}
-      accessibilityRole="button"
+      // Only announce as a button when it actually does something — a
+      // non-interactive row must not tell a screen reader it is tappable.
+      accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={`${expense.categoryLabel}, ${money(expense.amount)}, ${expense.dateLabel}`}
       style={({ pressed }) => ({
         flexDirection: 'row',
