@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Pressable, View, type ViewStyle } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { Text } from '@/components/ui';
@@ -31,21 +31,17 @@ export type SettingsRowProps = {
   rightElement?: ReactNode;
 };
 
-const ROW_STYLE: ViewStyle = {
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingVertical: spacing.md,
-};
-
 /**
  * A single settings line: a rounded icon chip, a label with an optional
  * description, and a right side that is either a custom control, a value, a
  * chevron, or nothing.
  *
- * Renders without a Card wrapper — `SettingsSection` groups rows inside one
- * shared Card and inserts the dividers. A row is only tappable when `onPress`
- * is given and it is not `disabled`; otherwise it renders as a plain View with
- * no chevron, so it never advertises an interaction it does not have.
+ * The chip / text / right side sit in an inner row `View` (with an inline style)
+ * rather than being laid out by the outer pressable — that keeps the horizontal
+ * layout robust. Renders without a Card wrapper: `SettingsSection` groups rows
+ * inside one shared Card and inserts the dividers. A row is only tappable when
+ * `onPress` is given and it is not `disabled`; otherwise it renders as a plain
+ * View with no chevron, so it never advertises an interaction it does not have.
  */
 export function SettingsRow({
   icon,
@@ -67,8 +63,8 @@ export function SettingsRow({
   const chevronVisible = (showChevron ?? onPress !== undefined) && !hasRightElement;
   const accessibilityLabel = value === undefined ? label : `${label}, ${value}`;
 
-  const content = (
-    <>
+  const row = (
+    <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md }}>
       <View
         style={{
           width: 36,
@@ -114,16 +110,13 @@ export function SettingsRow({
           ) : null}
         </View>
       )}
-    </>
+    </View>
   );
 
   if (onPress === undefined) {
     return (
-      <View
-        style={[ROW_STYLE, disabled ? { opacity: 0.5 } : null]}
-        accessibilityState={{ disabled }}
-      >
-        {content}
+      <View accessibilityState={{ disabled }} style={disabled ? { opacity: 0.5 } : undefined}>
+        {row}
       </View>
     );
   }
@@ -135,9 +128,9 @@ export function SettingsRow({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled }}
-      style={({ pressed }) => [ROW_STYLE, { opacity: disabled ? 0.5 : pressed ? 0.6 : 1 }]}
+      style={({ pressed }) => ({ opacity: disabled ? 0.5 : pressed ? 0.6 : 1 })}
     >
-      {content}
+      {row}
     </Pressable>
   );
 }
